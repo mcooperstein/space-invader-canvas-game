@@ -146,3 +146,12 @@ function draw() {
         enemy.draw();
     });
 }
+
+$(document).ready(function () {
+    $("#btnClose").click(function (evt) {
+        $("#dvNotify").slideUp('fast');
+    });
+    $("#btnShow").click(function (evt) {
+        $("#dvNotify").slideDown('fast');
+    })
+});
