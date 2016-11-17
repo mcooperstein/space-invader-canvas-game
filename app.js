@@ -111,10 +111,10 @@ function update() {
         player.shoot();
     }
     if (keydown.left && player.x > 0) {
-        player.x -= 2;
+        player.x -= 5;
     }
     if (keydown.right && player.x < (CANVAS_WIDTH - player.width)) {
-        player.x += 2;
+        player.x += 5;
     }
 
     playerBullets.forEach(function (bullet) {
