@@ -7,10 +7,7 @@ var canvas = canvasElement.get(0).getContext("2d");
 canvasElement.appendTo('body');
 
 var FPS = 30;
-/*var x = 50;
-var y = 50;
-var dx = 2;
-var dy = 2;*/
+
 var playerBullets = [];
 var enemies = [];
 
@@ -31,8 +28,9 @@ function Enemy(I) {
     };
 
     I.draw = function () {
-        canvas.fillStyle = this.color;
-        canvas.fillRect(this.x, this.y, this.width, this.height);
+        //canvas.fillStyle = this.color;
+        //canvas.fillRect(this.x, this.y, this.width, this.height);
+        canvas.drawImage(invaders, this.x, this.y, this.width, this.height);
     };
 
     I.update = function () {
@@ -54,7 +52,7 @@ function Bullet(I) {
     I.yVelocity = -I.speed;
     I.width = 3;
     I.height = 3;
-    I.color = "green";
+    I.color = "red";
 
     I.inBounds = function () {
         return I.x >= 0 && I.x <= CANVAS_WIDTH && I.y >= 0 && I.y <= CANVAS_HEIGHT;
@@ -80,8 +78,9 @@ var player = {
     width: 32,
     height: 32,
     draw: function () {
-        canvas.fillStyle = this.color;
-        canvas.fillRect(this.x, this.y, this.width, this.height);
+        /*canvas.fillStyle = this.color;
+        canvas.fillRect(this.x, this.y, this.width, this.height);*/
+        canvas.drawImage(ship, this.x, this.y, this.width, this.height);
     },
     shoot: function () {
         //console.log("PEW PEW");
