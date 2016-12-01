@@ -10,6 +10,8 @@ var FPS = 30;
 
 var playerBullets = [];
 var enemies = [];
+var oldEnemies = [];
+var score = 0;
 
 function Enemy(I) {
     I = I || {};
@@ -22,6 +24,7 @@ function Enemy(I) {
     I.yVelocity = 2;
     I.width = 32;
     I.height = 32;
+    I.exploded = false;
 
     I.inBounds = function () {
         return I.x >= 0 && I.x <= CANVAS_WIDTH && I.y >= 0 && I.y <= CANVAS_HEIGHT;
@@ -44,7 +47,8 @@ function Enemy(I) {
     };
 
     I.explode = function () {
-        this.active = false;
+        I.active = false;
+        I.exploded = true;
     }
 
     return I;
@@ -110,6 +114,8 @@ var player = {
     },
     explode: function () {
         this.active = false;
+        this.x = null;
+        this.y = null;
     }
 };
 
@@ -140,9 +146,18 @@ function update() {
     enemies.forEach(function (enemy) {
         enemy.update();
     });
+
+
+    oldEnemies = enemies.filter(function (enemy) {
+        return enemy.exploded;
+    });
+
+    score += oldEnemies.length;
+
     enemies = enemies.filter(function (enemy) {
         return enemy.active;
     });
+
     if (Math.random() < 0.1) {
         enemies.push(Enemy());
     }
@@ -156,9 +171,27 @@ function collides(a, b) {
         a.y + a.height > b.y;
 }
 
-function gameOver() {
-    alert("Game Over");
+function drawScore() {
+    canvas.save();
+    canvas.font = "bold 20px monospace";
+    canvas.fillStyle = 'red';
+    canvas.textAlign = "left";
+    canvas.fillText("Score: ".toUpperCase() + score.toString(), 10, 20);
+    canvas.restore();
 }
+
+function gameOver() {
+    canvas.textAlign = "center";
+    canvas.font = "50px monospace";
+    canvas.fillText("Game Over", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 50);
+    canvas.fillStyle = "white";
+    canvas.font = "30px monospace";
+    canvas.fillText("Press 'r' to restart", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
+}
+
+/*function increaseScore() {
+    score++;
+}*/
 
 function handleCollisions() {
     playerBullets.forEach(function (bullet) {
@@ -166,6 +199,7 @@ function handleCollisions() {
             if (collides(bullet, enemy)) {
                 enemy.explode();
                 bullet.active = false;
+                //setTimeout(increaseScore, 250);
             }
         });
     });
@@ -177,6 +211,12 @@ function handleCollisions() {
     });
 }
 
+$(document).on("keydown", function (event) {
+    if (event.which === 82) {
+        location.reload();
+    }
+})
+
 function draw() {
     canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     player.draw();
@@ -186,6 +226,7 @@ function draw() {
     enemies.forEach(function (enemy) {
         enemy.draw();
     });
+    drawScore();
 }
 
 $(document).ready(function () {
