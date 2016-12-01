@@ -10,6 +10,8 @@ var FPS = 30;
 
 var playerBullets = [];
 var enemies = [];
+var oldEnemies = [];
+var score = 0;
 
 function Enemy(I) {
     I = I || {};
@@ -22,6 +24,7 @@ function Enemy(I) {
     I.yVelocity = 2;
     I.width = 32;
     I.height = 32;
+    I.exploded = false;
 
     I.inBounds = function () {
         return I.x >= 0 && I.x <= CANVAS_WIDTH && I.y >= 0 && I.y <= CANVAS_HEIGHT;
@@ -42,6 +45,12 @@ function Enemy(I) {
 
         I.active = I.active && I.inBounds();
     };
+
+    I.explode = function () {
+        I.active = false;
+        I.exploded = true;
+    }
+
     return I;
 };
 
@@ -76,11 +85,16 @@ var player = {
     x: 220,
     y: 270,
     width: 32,
+    active: true,
     height: 32,
     draw: function () {
         /*canvas.fillStyle = this.color;
         canvas.fillRect(this.x, this.y, this.width, this.height);*/
-        canvas.drawImage(ship, this.x, this.y, this.width, this.height);
+        if (this.active) {
+            canvas.drawImage(ship, this.x, this.y, this.width, this.height);
+        } else {
+            gameOver();
+        }
     },
     shoot: function () {
         //console.log("PEW PEW");
@@ -97,6 +111,11 @@ var player = {
             x: this.x + this.width / 2,
             y: this.y + this.height / 2
         };
+    },
+    explode: function () {
+        this.active = false;
+        this.x = null;
+        this.y = null;
     }
 };
 
@@ -127,13 +146,76 @@ function update() {
     enemies.forEach(function (enemy) {
         enemy.update();
     });
+
+
+    oldEnemies = enemies.filter(function (enemy) {
+        return enemy.exploded;
+    });
+
+    score += oldEnemies.length;
+
     enemies = enemies.filter(function (enemy) {
         return enemy.active;
     });
+
     if (Math.random() < 0.1) {
         enemies.push(Enemy());
     }
+    handleCollisions();
 };
+
+function collides(a, b) {
+    return a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y;
+}
+
+function drawScore() {
+    canvas.save();
+    canvas.font = "bold 20px monospace";
+    canvas.fillStyle = 'red';
+    canvas.textAlign = "left";
+    canvas.fillText("Score: ".toUpperCase() + score.toString(), 10, 20);
+    canvas.restore();
+}
+
+function gameOver() {
+    canvas.textAlign = "center";
+    canvas.font = "50px monospace";
+    canvas.fillText("Game Over", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 50);
+    canvas.fillStyle = "white";
+    canvas.font = "30px monospace";
+    canvas.fillText("Press 'r' to restart", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
+}
+
+/*function increaseScore() {
+    score++;
+}*/
+
+function handleCollisions() {
+    playerBullets.forEach(function (bullet) {
+        enemies.forEach(function (enemy) {
+            if (collides(bullet, enemy)) {
+                enemy.explode();
+                bullet.active = false;
+                //setTimeout(increaseScore, 250);
+            }
+        });
+    });
+    enemies.forEach(function (enemy) {
+        if (collides(enemy, player)) {
+            enemy.explode();
+            player.explode();
+        }
+    });
+}
+
+$(document).on("keydown", function (event) {
+    if (event.which === 82) {
+        location.reload();
+    }
+})
 
 function draw() {
     canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -144,6 +226,7 @@ function draw() {
     enemies.forEach(function (enemy) {
         enemy.draw();
     });
+    drawScore();
 }
 
 $(document).ready(function () {
