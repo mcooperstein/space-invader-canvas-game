@@ -42,6 +42,11 @@ function Enemy(I) {
 
         I.active = I.active && I.inBounds();
     };
+
+    I.explode = function () {
+        this.active = false;
+    }
+
     return I;
 };
 
@@ -76,11 +81,16 @@ var player = {
     x: 220,
     y: 270,
     width: 32,
+    active: true,
     height: 32,
     draw: function () {
         /*canvas.fillStyle = this.color;
         canvas.fillRect(this.x, this.y, this.width, this.height);*/
-        canvas.drawImage(ship, this.x, this.y, this.width, this.height);
+        if (this.active) {
+            canvas.drawImage(ship, this.x, this.y, this.width, this.height);
+        } else {
+            gameOver();
+        }
     },
     shoot: function () {
         //console.log("PEW PEW");
@@ -97,6 +107,9 @@ var player = {
             x: this.x + this.width / 2,
             y: this.y + this.height / 2
         };
+    },
+    explode: function () {
+        this.active = false;
     }
 };
 
@@ -133,7 +146,36 @@ function update() {
     if (Math.random() < 0.1) {
         enemies.push(Enemy());
     }
+    handleCollisions();
 };
+
+function collides(a, b) {
+    return a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y;
+}
+
+function gameOver() {
+    alert("Game Over");
+}
+
+function handleCollisions() {
+    playerBullets.forEach(function (bullet) {
+        enemies.forEach(function (enemy) {
+            if (collides(bullet, enemy)) {
+                enemy.explode();
+                bullet.active = false;
+            }
+        });
+    });
+    enemies.forEach(function (enemy) {
+        if (collides(enemy, player)) {
+            enemy.explode();
+            player.explode();
+        }
+    });
+}
 
 function draw() {
     canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
