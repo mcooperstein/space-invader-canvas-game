@@ -18,7 +18,7 @@ function Enemy(I) {
     I.active = true;
     I.age = Math.floor(Math.random() * 128);
     I.color = "#A2B";
-    I.x = Math.random() * CANVAS_WIDTH;
+    I.x = (Math.random() * CANVAS_WIDTH / 2) + CANVAS_WIDTH / 4;
     I.y = 0;
     I.xVelocity = 0;
     I.yVelocity = 2;
@@ -65,6 +65,7 @@ function Bullet(I) {
 
     I.inBounds = function () {
         return I.x >= 0 && I.x <= CANVAS_WIDTH && I.y >= 0 && I.y <= CANVAS_HEIGHT;
+
     };
 
     I.draw = function () {
@@ -125,13 +126,13 @@ setInterval(function () {
 }, 1000 / FPS);
 
 function update() {
-    if (keydown.space) {
+    if (keydown.space && player.active) {
         player.shoot();
     }
-    if (keydown.left && player.x > 0) {
+    if (keydown.left && player.x > 0 && player.active) {
         player.x -= 5;
     }
-    if (keydown.right && player.x < (CANVAS_WIDTH - player.width)) {
+    if (keydown.right && player.x < (CANVAS_WIDTH - player.width) && player.active) {
         player.x += 5;
     }
 
@@ -146,7 +147,6 @@ function update() {
     enemies.forEach(function (enemy) {
         enemy.update();
     });
-
 
     oldEnemies = enemies.filter(function (enemy) {
         return enemy.exploded;
@@ -176,7 +176,7 @@ function drawScore() {
     canvas.font = "bold 20px monospace";
     canvas.fillStyle = 'red';
     canvas.textAlign = "left";
-    canvas.fillText("Score: ".toUpperCase() + score.toString(), 10, 20);
+    canvas.fillText("Score:".toUpperCase() + score.toString(), 10, 20);
     canvas.restore();
 }
 
@@ -187,6 +187,10 @@ function gameOver() {
     canvas.fillStyle = "white";
     canvas.font = "30px monospace";
     canvas.fillText("Press 'r' to restart", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
+    canvas.restore();
+    playerBullets.forEach(function (bullet) {
+        bullet.active = false;
+    })
 }
 
 /*function increaseScore() {
@@ -199,7 +203,7 @@ function handleCollisions() {
             if (collides(bullet, enemy)) {
                 enemy.explode();
                 bullet.active = false;
-                //setTimeout(increaseScore, 250);
+                //setTimeout(increaseScore, 500);
             }
         });
     });
