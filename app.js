@@ -195,6 +195,8 @@ function drawScore() {
     canvas.restore();
 }
 
+console.log(highScore);
+
 function gameOver() {
     canvas.textAlign = "center";
     canvas.font = "50px monospace";
