@@ -12,6 +12,10 @@ var playerBullets = [];
 var enemies = [];
 var oldEnemies = [];
 var score = 0;
+var highScore = localStorage.getItem("highScore");
+
+var centerX = CANVAS_WIDTH / 2;
+var centerY = CANVAS_HEIGHT / 2;
 
 function Enemy(I) {
     I = I || {};
@@ -177,6 +181,17 @@ function drawScore() {
     canvas.fillStyle = 'red';
     canvas.textAlign = "left";
     canvas.fillText("Score:".toUpperCase() + score.toString(), 10, 20);
+    canvas.font = "bold 20px monospace";
+    canvas.fillStyle = 'red';
+    canvas.textAlign = "right";
+    canvas.fillText("High Score:" + highScore.toString(), CANVAS_WIDTH, 20);
+    if (score > highScore && !player.active) {
+        localStorage.setItem("highScore", score);
+        canvas.font = "bold 40px monospace";
+        canvas.fillStyle = 'red';
+        canvas.textAlign = "center";
+        canvas.fillText("High Score!!!", centerX, centerY);
+    }
     canvas.restore();
 }
 
