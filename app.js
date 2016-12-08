@@ -13,6 +13,9 @@ var enemies = [];
 var oldEnemies = [];
 var score = 0;
 var highScore = localStorage.getItem("highScore");
+if (highScore === 0) {
+    highScore = 1;
+}
 
 var centerX = CANVAS_WIDTH / 2;
 var centerY = CANVAS_HEIGHT / 2;
